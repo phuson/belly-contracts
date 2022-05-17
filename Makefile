@@ -2,7 +2,7 @@
 # (-include to ignore error if it does not exist)
 -include .env
 
-all: clean remove install update solc build dappbuild
+all: clean remove install update solc build
 
 # Install proper solc version.
 solc:; nix-env -f https://github.com/dapphub/dapptools/archive/master.tar.gz -iA solc-static-versions.solc_0_8_13
@@ -14,7 +14,7 @@ clean  :; forge clean
 remove :; rm -rf ../../.gitmodules && rm -rf ../../.git/modules/* && rm -rf lib && touch ../../.gitmodules && git add . && git commit -m "modules"
 
 # Install the Modules
-install :; forge install foundry-rs/forge-std && forge install openzeppelin/openzeppelin-contracts
+install :; forge install foundry-rs/forge-std && forge install openzeppelin/openzeppelin-contracts@v4.6.0
 
 # Update Dependencies
 update:; forge update

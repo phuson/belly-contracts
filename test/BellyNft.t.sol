@@ -112,7 +112,8 @@ contract BellyNftTest is ContractTest {
   function testSetRecipesContractWithNonContractAddressFuzz(
     address contractAddress
   ) public {
-    vm.assume(contractAddress != address(address(this)));
+    vm.assume(contractAddress != address(this));
+    vm.assume(contractAddress != address(vm));
     vm.assume(contractAddress != address(bellyNftCrafting));
     vm.assume(contractAddress != address(bellyRecipes));
     vm.assume(contractAddress != address(bellyNft));
