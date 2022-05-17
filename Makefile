@@ -11,7 +11,7 @@ solc:; nix-env -f https://github.com/dapphub/dapptools/archive/master.tar.gz -iA
 clean  :; forge clean
 
 # Remove modules
-remove :; rm -rf ../.gitmodules && rm -rf ../.git/modules/* && rm -rf lib && touch ../.gitmodules && git add . && git commit -m "modules"
+remove :; rm -rf .gitmodules && rm -rf .git/modules/* && rm -rf lib && touch .gitmodules && git add . && git commit -m "modules"
 
 # Install the Modules
 install :; forge install foundry-rs/forge-std && forge install openzeppelin/openzeppelin-contracts@v4.6.0
