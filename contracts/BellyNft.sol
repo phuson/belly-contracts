@@ -45,6 +45,10 @@ contract BellyNft is
     _setDefaultRoyalty(msg.sender, 500);
   }
 
+  /// @notice Update and set new royalty information for NFT collection
+  /// @dev Sets the default royalty information since it's the same for all token IDs
+  /// @param receiver Address of the new royalty receiver
+  /// @param feeNumerator Percentage of the royalty fee (10000 = 100%)
   function setRoyaltyInfo(address receiver, uint96 feeNumerator)
     public
     onlyRole(DEFAULT_ADMIN_ROLE)
@@ -52,22 +56,32 @@ contract BellyNft is
     _setDefaultRoyalty(receiver, feeNumerator);
   }
 
+  /// @notice Mint new NFT to a designated address
+  /// @dev Only Minter Role
+  /// @param account Destination address to mint to
+  /// @param id NFT ID to mint
+  /// @param amount Number of NFT to mint
   function mint(
     address account,
     uint256 id,
     uint256 amount,
     bytes memory data
-  ) public nonReentrant whenNotPaused onlyRole(MINTER_ROLE) {
+  ) external nonReentrant whenNotPaused onlyRole(MINTER_ROLE) {
     _mint(account, id, amount, data);
   }
 
+  /// @notice Batch minting NFTs to a designated address
+  /// @dev Only Minter Role
+  /// @param account Destination address to mint to
+  /// @param ids Arrays of IDs to mint
+  /// @param amounts Arrays of amounts of NFT to mint
   function mintBatch(
-    address to,
+    address account,
     uint256[] memory ids,
     uint256[] memory amounts,
     bytes memory data
-  ) public nonReentrant whenNotPaused onlyRole(MINTER_ROLE) {
-    _mintBatch(to, ids, amounts, data);
+  ) external nonReentrant whenNotPaused onlyRole(MINTER_ROLE) {
+    _mintBatch(account, ids, amounts, data);
   }
 
   modifier whenAddressIsContract(address addr) {
@@ -78,8 +92,11 @@ contract BellyNft is
     _;
   }
 
+  /// @notice Delegates the crafting functionality to another smart contract
+  ///         that contains the implementation details (via the Delegate Proxy Pattern)
+  /// @param recipeId The recipe NFT ID to be crafted.
   function craft(uint256 recipeId)
-    public
+    external
     payable
     virtual
     nonReentrant
@@ -106,16 +123,22 @@ contract BellyNft is
     }
   }
 
+  /// @notice Set a new crafting smart contract by address
+  /// @dev Only Admin
+  /// @param addr Address of the crafting implementation contract
   function setCraftingContract(address addr)
-    public
+    external
     whenAddressIsContract(addr)
     onlyRole(DEFAULT_ADMIN_ROLE)
   {
     craftingContract = addr;
   }
 
+  /// @notice Set a new recipes smart contract by address
+  /// @dev Only Admin
+  /// @param addr Address of the contract that contains the list of recipes
   function setRecipesContract(address addr)
-    public
+    external
     whenAddressIsContract(addr)
     onlyRole(DEFAULT_ADMIN_ROLE)
   {
@@ -128,6 +151,9 @@ contract BellyNft is
     _setURI(newuri);
   }
 
+  /// @notice Returns the URI that points to the NFT's metadata
+  /// @dev Overrides existing uri() function
+  /// @param tokenId Token ID of the NFT
   function uri(uint256 tokenId)
     public
     view
@@ -140,17 +166,24 @@ contract BellyNft is
     return string.concat(super.uri(tokenId), Strings.toString(tokenId));
   }
 
-  function tokenURI(uint256 tokenId) public view returns (string memory) {
+  /// @notice Returns the URI that points to the NFT's metadata
+  /// @dev To support dapps that uses tokenURI() instead
+  /// @param tokenId Token ID of the NFT
+  function tokenURI(uint256 tokenId) external view returns (string memory) {
     return uri(tokenId);
   }
 
   /*** Pause / Unpause ***/
 
-  function pause() public onlyRole(DEFAULT_ADMIN_ROLE) {
+  /// @notice Pause the contract disable minting
+  /// @dev Only Admin
+  function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
     _pause();
   }
 
-  function unpause() public onlyRole(DEFAULT_ADMIN_ROLE) {
+  /// @notice Unpause the contract to allow minting
+  /// @dev Only Admin
+  function unpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
     _unpause();
   }
 
@@ -178,6 +211,7 @@ contract BellyNft is
 
   /*** Withdraw and receive fallback ***/
 
+  /// @notice Withdraw the contract's fund
   function withdraw() external onlyRole(DEFAULT_ADMIN_ROLE) {
     uint256 balance = address(this).balance;
     // This forwards all available gas. Be sure to check the return value!
@@ -186,7 +220,8 @@ contract BellyNft is
     require(success, "Transfer failed.");
   }
 
-  // reclaim ERC20 tokens
+  /// @notice Reclaim ERC20 tokens from contract
+  /// @param token Address of the ERC721 NFT contract to reclaim
   function reclaimFungibleToken(IERC20 token)
     public
     onlyRole(DEFAULT_ADMIN_ROLE)
@@ -196,7 +231,11 @@ contract BellyNft is
     token.transfer(msg.sender, balance);
   }
 
-  // reclaim ERC1155 tokens
+  /// @notice Reclaim ERC1155 tokens from contract
+  /// @param account Destination to send the NFTs to
+  /// @param token Address of the ERC1155 NFT contract to reclaim
+  /// @param ids The IDs of the NFT from the given ERC1155 NFT contract to reclaim
+  /// @param data Extra data to send to {IERC1155-safeBatchTransferFrom}
   function reclaimTokenBatch(
     address account,
     IERC1155 token,

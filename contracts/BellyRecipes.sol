@@ -15,6 +15,8 @@ interface IBellyNft is IERC1155 {
   ) external;
 }
 
+/// @title Contract that contains the list of recipes on-chain
+/// Each recipe takes in a set of token by their IDs and produces an recipe NFT as a result
 contract BellyRecipes is AccessControl, IRecipes {
   event RecipeAdded(uint256 indexed recipeId);
   event RecipeRemoved(uint256 indexed recipeId);
@@ -30,12 +32,17 @@ contract BellyRecipes is AccessControl, IRecipes {
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
   }
 
+  /// @notice Add new recipe to the on-chain array
+  /// @dev Admin Only
+  /// @param recipeId The Recipe NFT ID. This ID is the result token ID that is minted when this recipe is crafted.
+  /// @param tokenIds Array of NFT IDs that are required to craft this recipe
+  /// @param amounts Array of amounts for each NFT ID that are needed to craft this recipe
   function addRecipe(
     uint256 recipeId,
     uint256[] memory tokenIds,
     uint256[] memory amounts
   )
-    public
+    external
     onlyRole(DEFAULT_ADMIN_ROLE)
     returns (
       uint256 id,
@@ -62,7 +69,13 @@ contract BellyRecipes is AccessControl, IRecipes {
     return (recipeId, tokenIds, amounts);
   }
 
-  function removeRecipe(uint256 recipeId) public onlyRole(DEFAULT_ADMIN_ROLE) {
+  /// @notice Remove existing recipe from the on-chain array
+  /// @dev Admin Only
+  /// @param recipeId The Recipe ID to be removed from the on-chain array
+  function removeRecipe(uint256 recipeId)
+    external
+    onlyRole(DEFAULT_ADMIN_ROLE)
+  {
     if (!recipeExists(recipeId)) {
       revert RecipeDoesNotExist();
     }
@@ -72,8 +85,10 @@ contract BellyRecipes is AccessControl, IRecipes {
     emit RecipeRemoved(recipeId);
   }
 
+  /// @notice Get recipe by given ID from the on-chain array
+  /// @param recipeId The Recipe ID to retrieve
   function getRecipe(uint256 recipeId)
-    public
+    external
     view
     hasRecipe(recipeId)
     returns (
@@ -85,6 +100,8 @@ contract BellyRecipes is AccessControl, IRecipes {
     return (recipeId, _recipes[recipeId].tokenIds, _recipes[recipeId].amounts);
   }
 
+  /// @notice Convenient function to check if recipe exists and has a set of required token IDs.
+  /// @param id The Recipe ID to check
   function recipeExists(uint256 id) public view override returns (bool) {
     return _recipes[id].tokenIds.length > 0;
   }

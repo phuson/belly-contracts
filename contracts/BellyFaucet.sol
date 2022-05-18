@@ -21,6 +21,7 @@ interface IBellyNft {
   ) external;
 }
 
+/// @title NFTs distribution channel for giving out Ingredient NFTs that can be used for crafting
 contract BellyFaucet is AccessControl, Pausable, ReentrancyGuard {
   IBellyNft public bellyNft;
   uint256[] public ingredientIds = [1, 2, 3, 5, 6, 7, 8, 10, 12, 13, 15, 17];
@@ -29,14 +30,19 @@ contract BellyFaucet is AccessControl, Pausable, ReentrancyGuard {
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
   }
 
+  /// @notice Set the address of the main Belly NFT smart contract
+  /// @dev Only Admin
+  /// @param contractAddress Address for the main Belly NFT smart contract
   function setBellyNft(address contractAddress)
-    public
+    external
     onlyRole(DEFAULT_ADMIN_ROLE)
   {
     bellyNft = IBellyNft(contractAddress);
   }
 
-  function gimmeIngredients(address to) public nonReentrant whenNotPaused {
+  /// @notice Mint one of each ingredient NFT for playing around with the crafting functionality
+  /// @param to Address to mint the set of Ingredient NFTs to
+  function gimmeIngredients(address to) external nonReentrant whenNotPaused {
     uint256 idsLength = ingredientIds.length;
     uint256[] memory amounts = new uint256[](idsLength);
     uint256 i;
@@ -49,11 +55,13 @@ contract BellyFaucet is AccessControl, Pausable, ReentrancyGuard {
 
   /*** Pause / Unpause ***/
 
-  function pause() public onlyRole(DEFAULT_ADMIN_ROLE) {
+  /// @notice Pause the contract disable minting. Admin only.
+  function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
     _pause();
   }
 
-  function unpause() public onlyRole(DEFAULT_ADMIN_ROLE) {
+  /// @notice Unpause the contract to allow minting. Admin only.
+  function unpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
     _unpause();
   }
 }

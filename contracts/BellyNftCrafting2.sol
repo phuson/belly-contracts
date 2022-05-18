@@ -38,7 +38,7 @@ contract BellyNftCrafting2 is
     _grantRole(MINTER_ROLE, msg.sender);
   }
 
-  function craft(uint256) public payable virtual whenNotPaused {
+  function craft(uint256) external payable virtual whenNotPaused {
     revert("Craft Contract Updated");
   }
 

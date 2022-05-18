@@ -10,6 +10,10 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./IRecipes.sol";
 import "./BellyErrors.sol";
 
+/// @title Contains the implementation detail of the crafting functionality
+/// for the main BellyNft contract (via the Delegate Proxy Pattern).
+/// Therefore, all of the NFT details are left as blanks
+/// to reserve the contract's storage space so they cannot be overriden accidentally.
 contract BellyNftCrafting is
   ERC1155,
   ERC1155Supply,
@@ -35,7 +39,11 @@ contract BellyNftCrafting is
     _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
   }
 
-  function craft(uint256 recipeId) public payable virtual whenNotPaused {
+  /// @notice Craft/Mint a new recipe NFT to the crafter (msg.sender)
+  /// @dev This function will look up to see if user has the required NFTs needed.
+  ///      It burns the required set of ingredient NFTs and mint a new recipe NFT.
+  /// @param recipeId The recipe NFT ID to be crafted.
+  function craft(uint256 recipeId) external payable virtual whenNotPaused {
     // get requirements from recipe contract
     (
       uint256 resultTokenId,
