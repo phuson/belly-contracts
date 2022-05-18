@@ -13,6 +13,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./IRecipes.sol";
 import "./BellyErrors.sol";
 
+/// @title Main NFT contract for belly.io project.
+/// @dev Make sure to add references to the recipes smart contract and crafting implementation smart contract
 contract BellyNft is
   ERC1155,
   ERC1155Burnable,

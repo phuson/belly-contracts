@@ -21,7 +21,8 @@ interface IBellyNft {
   ) external;
 }
 
-/// @title NFTs distribution channel for giving out Ingredient NFTs that can be used for crafting
+/// @title NFTs distribution channel for giving out Ingredient NFTs that can be used for crafting.
+/// @dev This contract must have Minter role to the main Belly NFT contract.
 contract BellyFaucet is AccessControl, Pausable, ReentrancyGuard {
   IBellyNft public bellyNft;
   uint256[] public ingredientIds = [1, 2, 3, 5, 6, 7, 8, 10, 12, 13, 15, 17];
