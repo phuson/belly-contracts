@@ -39,12 +39,12 @@ contract BellyNft is
   IRecipes public recipes;
 
   constructor() ERC1155("") {
-    _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-    _grantRole(MINTER_ROLE, msg.sender);
+    _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
+    _grantRole(MINTER_ROLE, _msgSender());
 
     setURI("https://belly.io/api/cards/");
 
-    _setDefaultRoyalty(msg.sender, 500);
+    _setDefaultRoyalty(_msgSender(), 500);
   }
 
   /// @notice Update and set new royalty information for NFT collection
@@ -215,11 +215,8 @@ contract BellyNft is
 
   /// @notice Withdraw the contract's fund
   function withdraw() external onlyRole(DEFAULT_ADMIN_ROLE) {
-    uint256 balance = address(this).balance;
-    // This forwards all available gas. Be sure to check the return value!
-    (bool success, ) = msg.sender.call{ value: balance }("");
-
-    require(success, "Transfer failed.");
+    address payable msgSender = payable(_msgSender());
+    msgSender.transfer(address(this).balance);
   }
 
   /// @notice Reclaim ERC20 tokens from contract
@@ -227,10 +224,12 @@ contract BellyNft is
   function reclaimFungibleToken(IERC20 token)
     public
     onlyRole(DEFAULT_ADMIN_ROLE)
+    returns (bool)
   {
     require(address(token) != address(0), "Token address cannot be 0");
     uint256 balance = token.balanceOf(address(this));
-    token.transfer(msg.sender, balance);
+
+    return token.transfer(_msgSender(), balance);
   }
 
   /// @notice Reclaim ERC1155 tokens from contract

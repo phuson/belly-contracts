@@ -259,4 +259,69 @@ contract BellyNftTest is ContractTest {
       assertEq(bellyNft.balanceOf(address(bellyNft), ids[i]), 0);
     }
   }
+
+  function testWithdrawAsAdmin() public {
+    vm.deal(ADMIN_ADDRESS, 100 ether);
+    vm.startPrank(ADMIN_ADDRESS);
+    assertEq(address(bellyNft).balance, 0 ether);
+    payable(address(bellyNft)).transfer(10 ether);
+    assertEq(address(bellyNft).balance, 10 ether);
+    payable(address(bellyNft)).transfer(10 ether);
+    assertEq(address(bellyNft).balance, 20 ether);
+    assertEq(address(ADMIN_ADDRESS).balance, 80 ether);
+
+    // withdraw
+    bellyNft.withdraw();
+    assertEq(
+      address(bellyNft).balance,
+      0 ether,
+      "contract balance should be empty"
+    );
+    assertEq(
+      address(ADMIN_ADDRESS).balance,
+      100 ether,
+      "admin user should have the original balance"
+    );
+  }
+
+  function testWithdrawAsAdminFuzz(uint256 startingAmount) public {
+    vm.deal(ADMIN_ADDRESS, startingAmount);
+    vm.startPrank(ADMIN_ADDRESS);
+    assertEq(address(bellyNft).balance, 0 ether);
+    payable(address(bellyNft)).transfer(startingAmount);
+    assertEq(address(bellyNft).balance, startingAmount);
+    assertEq(address(ADMIN_ADDRESS).balance, 0 ether);
+
+    // withdraw
+    bellyNft.withdraw();
+    assertEq(
+      address(bellyNft).balance,
+      0 ether,
+      "contract balance should be empty"
+    );
+    assertEq(
+      address(ADMIN_ADDRESS).balance,
+      startingAmount,
+      "admin user should have the original balance"
+    );
+  }
+
+  function testWithdrawAsUser() public {
+    vm.deal(USER_ADDRESS, 100 ether);
+    assertEq(address(USER_ADDRESS).balance, 100 ether);
+
+    vm.startPrank(USER_ADDRESS);
+    assertEq(address(bellyNft).balance, 0 ether);
+
+    payable(address(bellyNft)).transfer(10 ether);
+    assertEq(address(bellyNft).balance, 10 ether);
+    assertEq(address(USER_ADDRESS).balance, 90 ether);
+
+    vm.expectRevert(
+      getEncodedAccessControlError(USER_ADDRESS, DEFAULT_ADMIN_ROLE)
+    );
+    bellyNft.withdraw();
+    assertEq(address(bellyNft).balance, 10 ether);
+    assertEq(address(USER_ADDRESS).balance, 90 ether);
+  }
 }

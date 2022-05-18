@@ -1,0 +1,5 @@
+{
+  "solc_remaps": [
+    "@openzeppelin/contracts=lib/openzeppelin-contracts/contracts/"
+  ]
+}
